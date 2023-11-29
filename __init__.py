@@ -158,7 +158,6 @@ class VideoCombine:
                     {"default": 14, "min": 1, "step": 1},
                 ),
                 "format": (["image/webp"],),
-                "pingpong": ("BOOLEAN", {"default": False}),
             }
         }
 
