@@ -202,6 +202,33 @@ class VideoCombine:
         print(f'Uploading webp to {s3url}')
         return (s3url,)
 
+class RIFEInterpolate:
+    """
+    A node for performing real-time interpolation on a video.
+
+    See https://github.com/megvii-research/ECCV2022-RIFE.
+    """
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "images": ("IMAGE",),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("images",)
+    OUTPUT_NODE = True
+    CATEGORY = "Video"
+    FUNCTION = "execute"
+
+    def execute(
+        self,
+        images,
+    ):
+        return(images,)
+
+
 NODE_CLASS_MAPPINGS = {
     "EZHttpPostNode": HttpPostNode,
     "EZEmptyDictNode": EmptyDictNode,
@@ -210,7 +237,8 @@ NODE_CLASS_MAPPINGS = {
     "EZAssocImgNode": AssocImgNode,
     "EZLoadImgFromUrlNode": LoadImageFromUrlNode,
     "EZLoadImgBatchFromUrlsNode": LoadImagesFromUrlsNode,
-    "EZVideoCombiner": VideoCombine
+    "EZVideoCombiner": VideoCombine,
+    "EZRifeInterpolate": RIFEInterpolate
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -221,5 +249,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "EZAssocImgNode": "Assoc Img",
     "EZLoadImgFromUrlNode": "Load Img From URL (EZ)",
     "EZLoadImgBatchFromUrlsNode": "Load Img Batch From URLs (EZ)",
-    "EZVideoCombiner": "Video Combine + upload (EZ)"
+    "EZVideoCombiner": "Video Combine + upload (EZ)",
+    "EZRifeInterpolate": "RIFE Interpolate (EZ)"
 }
