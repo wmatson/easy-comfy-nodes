@@ -7,7 +7,6 @@ import torch
 import tempfile
 import boto3
 import shutil
-import ffmpeg
 import subprocess
 
 class HttpPostNode:
@@ -149,6 +148,8 @@ ffmpeg_path = shutil.which("ffmpeg")
 class VideoCombine:
     """ 
     Batches images into WebP format and uploads them S3. 
+
+    Source: https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite/blob/main/videohelpersuite/nodes.py#L165
     """
 
     @classmethod
@@ -208,7 +209,7 @@ class VideoCombine:
             if ffmpeg_path is None:
                 print("no ffmpeg path")
 
-                dimensions='1280x720'
+                dimensions = f"{len(images[0][0])}x{len(images[0])}"
 
                 args_mp4 = [ffmpeg_path, "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
                         "-s", dimensions, "-r", str(frame_rate), "-i", "-", "-crf", "20"
