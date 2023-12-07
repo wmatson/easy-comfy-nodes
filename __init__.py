@@ -189,6 +189,7 @@ class VideoCombine:
         format_type, format_ext = format.split("/")
 
         tf = tempfile.NamedTemporaryFile()
+        filename = tf.name
 
         # use pillow for images
         if format_type == "image":
@@ -209,16 +210,29 @@ class VideoCombine:
             if ffmpeg_path is None:
                 print("no ffmpeg path")
 
-                dimensions = f"{len(images[0][0])}x{len(images[0])}"
+            dimensions = f"{len(images[0][0])}x{len(images[0])}"
+            print("image dimensions: ", dimensions)
 
-                args_mp4 = [ffmpeg_path, "-v", "error", "-f", "rawvideo", "-s", dimensions,
-                        "-r", str(frame_rate), "-i", "-", "-crf", "20" "-n", "-c:v", "libx264",
-                        "-pix_fmt", "yuv420p"]
+            args_mp4 = [
+                ffmpeg_path, 
+                "-v", "error", 
+                "-f", "rawvideo", 
+                "-pix_fmt", "rgb24",
+                "-s", dimensions,
+                "-r", str(frame_rate), 
+                "-i", "-",
+                "-crf", "20",
+                "-c:v", "libx264",
+                "-pix_fmt", "yuv420p"
+            ]
 
-                res = subprocess.run(args_mp4 + [tf.name], input=images.tobytes(), capture_output=True)
+            filename = filename + '.mp4'
+
+            res = subprocess.run(args_mp4 + [filename], input=images.tobytes(), capture_output=True)
+            print(res.stderr)
 
         s3 = boto3.resource('s3')
-        s3.Bucket(s3_bucket).upload_file(tf.name, s3_object_name)
+        s3.Bucket(s3_bucket).upload_file(filename, s3_object_name)
         s3url = f's3://{s3_bucket}/{s3_object_name}'
         print(f'Uploading webp to {s3url}')
         return (s3url,)
