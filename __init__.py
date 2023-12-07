@@ -8,6 +8,7 @@ import tempfile
 import boto3
 import shutil
 import ffmpeg
+import subprocess
 
 class HttpPostNode:
     @classmethod
@@ -212,6 +213,8 @@ class VideoCombine:
                 args_mp4 = [ffmpeg_path, "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
                         "-s", dimensions, "-r", str(frame_rate), "-i", "-", "-crf", "20"
                         "-n", "-c:v", "libx264", "-pix_fmt", "yuv420p"]
+
+                res = subprocess.run(args_mp4 + [tf.name], input=images.to_bytes(), capture_output=True)
 
         s3 = boto3.resource('s3')
         s3.Bucket(s3_bucket).upload_file(tf.name, s3_object_name)
