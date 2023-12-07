@@ -215,7 +215,7 @@ class VideoCombine:
                         "-r", str(frame_rate), "-i", "-", "-crf", "20" "-n", "-c:v", "libx264",
                         "-pix_fmt", "yuv420p"]
 
-                res = subprocess.run(args_mp4 + [tf.name], input=images.to_bytes(), capture_output=True)
+                res = subprocess.run(args_mp4 + [tf.name], input=images.tobytes(), capture_output=True)
 
         s3 = boto3.resource('s3')
         s3.Bucket(s3_bucket).upload_file(tf.name, s3_object_name)
