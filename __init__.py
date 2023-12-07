@@ -6,6 +6,8 @@ from PIL import Image, ImageOps
 import torch
 import tempfile
 import boto3
+import shutil
+import ffmpeg
 
 class HttpPostNode:
     @classmethod
@@ -141,6 +143,8 @@ class LoadImagesFromUrlsNode:
                 image1 = torch.cat((image1, image2), dim=0)
             return (image1,)
 
+ffmpeg_path = shutil.which("ffmpeg")
+
 class VideoCombine:
     """ 
     Batches images into WebP format and uploads them S3. 
@@ -157,7 +161,7 @@ class VideoCombine:
                     "INT",
                     {"default": 14, "min": 1, "step": 1},
                 ),
-                "format": (["image/webp"],),
+                "format": (["image/webp", "video/h264-mp4"],),
             }
         }
 
@@ -180,21 +184,34 @@ class VideoCombine:
         images = images.cpu().numpy() * 255.0
         images = np.clip(images, 0, 255).astype(np.uint8)
 
-        _, format_ext = format.split("/")
+        format_type, format_ext = format.split("/")
 
         tf = tempfile.NamedTemporaryFile()
 
-        frames = [Image.fromarray(f) for f in images]
-        # Use pillow directly to save an animated image to the tmp file
-        frames[0].save(
-            tf.name,
-            format=format_ext.upper(),
-            save_all=True,
-            append_images=frames[1:],
-            duration=round(1000 / frame_rate),
-            loop=0,
-            compress_level=4,
-        )
+        # use pillow for images
+        if format_type == "image":
+            frames = [Image.fromarray(f) for f in images]
+            # Use pillow directly to save an animated image to the tmp file
+            frames[0].save(
+                tf.name,
+                format=format_ext.upper(),
+                save_all=True,
+                append_images=frames[1:],
+                duration=round(1000 / frame_rate),
+                loop=0,
+                compress_level=4,
+            )
+
+        # use ffmpeg for video
+        else:
+            if ffmpeg_path is None:
+                print("no ffmpeg path")
+
+                dimensions='1280x720'
+
+                args_mp4 = [ffmpeg_path, "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
+                        "-s", dimensions, "-r", str(frame_rate), "-i", "-", "-crf", "20"
+                        "-n", "-c:v", "libx264", "-pix_fmt", "yuv420p"]
 
         s3 = boto3.resource('s3')
         s3.Bucket(s3_bucket).upload_file(tf.name, s3_object_name)
