@@ -211,9 +211,9 @@ class VideoCombine:
 
                 dimensions = f"{len(images[0][0])}x{len(images[0])}"
 
-                args_mp4 = [ffmpeg_path, "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
-                        "-s", dimensions, "-r", str(frame_rate), "-i", "-", "-crf", "20"
-                        "-n", "-c:v", "libx264", "-pix_fmt", "yuv420p"]
+                args_mp4 = [ffmpeg_path, "-v", "error", "-f", "rawvideo", "-s", dimensions,
+                        "-r", str(frame_rate), "-i", "-", "-crf", "20" "-n", "-c:v", "libx264",
+                        "-pix_fmt", "yuv420p"]
 
                 res = subprocess.run(args_mp4 + [tf.name], input=images.to_bytes(), capture_output=True)
 
