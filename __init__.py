@@ -253,9 +253,7 @@ class RemoveImageBackground:
     CATEGORY = "image"
     FUNCTION = "execute"
 
-    # should take the image, convert it to numpy, remove the background, convert back to torch and return it
     def execute(self, image):
-        x = image
         # tensor -> numpy
         image = image.cpu().numpy() * 255.0
         image = np.clip(image, 0, 255).astype(np.uint8)
