@@ -8,6 +8,7 @@ import tempfile
 import boto3
 import shutil
 import subprocess
+import rembg
 
 class HttpPostNode:
     @classmethod
@@ -237,6 +238,41 @@ class VideoCombine:
         print(f'Uploading webp to {s3url}')
         return (s3url,)
 
+class RemoveImageBackground:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("image",)
+    OUTPUT_NODE = True
+    CATEGORY = "image"
+    FUNCTION = "execute"
+
+    # should take the image, convert it to numpy, remove the background, convert back to torch and return it
+    def execute(self, image):
+        x = image
+        # tensor -> numpy
+        image = image.cpu().numpy() * 255.0
+        image = np.clip(image, 0, 255).astype(np.uint8)
+
+        # numpy -> pillow
+        frame = Image.fromarray(image[0])
+        output = rembg.remove(frame)
+
+        output = ImageOps.exif_transpose(output)
+        output = output.convert("RGB")
+
+        # pillow -> numpy -> tensor
+        image = np.array(output).astype(np.float32) / 255.0
+        image = torch.from_numpy(image)[None,]
+
+        return (image,)
+
 NODE_CLASS_MAPPINGS = {
     "EZHttpPostNode": HttpPostNode,
     "EZEmptyDictNode": EmptyDictNode,
@@ -245,7 +281,8 @@ NODE_CLASS_MAPPINGS = {
     "EZAssocImgNode": AssocImgNode,
     "EZLoadImgFromUrlNode": LoadImageFromUrlNode,
     "EZLoadImgBatchFromUrlsNode": LoadImagesFromUrlsNode,
-    "EZVideoCombiner": VideoCombine
+    "EZVideoCombiner": VideoCombine,
+    "EZRemoveImgBackground": RemoveImageBackground
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -256,5 +293,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "EZAssocImgNode": "Assoc Img",
     "EZLoadImgFromUrlNode": "Load Img From URL (EZ)",
     "EZLoadImgBatchFromUrlsNode": "Load Img Batch From URLs (EZ)",
-    "EZVideoCombiner": "Video Combine + upload (EZ)"
+    "EZVideoCombiner": "Video Combine + upload (EZ)",
+    "EZRemoveImgBackground": "Remove Img Background (EZ)"
 }
