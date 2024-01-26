@@ -9,6 +9,7 @@ import boto3
 import shutil
 import subprocess
 import rembg
+import comfy
 
 class HttpPostNode:
     @classmethod
@@ -238,6 +239,42 @@ class VideoCombine:
         print(f'Uploading webp to {s3url}')
         return (s3url,)
 
+class S3Upload:
+    """
+    Uploads first file from VHS_FILENAMES from ComfyUI-VideoHelperSuite to S3.
+
+    See also: https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite
+    """
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "filenames": ("VHS_FILENAMES",),
+                "s3_bucket": ("STRING", {"default": ""}),
+                "s3_object_name": ("STRING", {"default": "default/result.webp"}),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("s3_url",)
+    OUTPUT_NODE = True
+    CATEGORY = "Video"
+    FUNCTION = "execute"
+
+    def execute(
+        self,
+        filenames=(),
+        s3_bucket="",
+        s3_object_name="",
+    ):
+
+        s3 = boto3.resource('s3')
+        s3.Bucket(s3_bucket).upload_file(filenames[1][0], s3_object_name)
+        s3url = f's3://{s3_bucket}/{s3_object_name}'
+        print(f'Uploading file to {s3url}')
+        return (s3url,)
+
 class RemoveImageBackground:
     @classmethod
     def INPUT_TYPES(s):
@@ -280,6 +317,7 @@ NODE_CLASS_MAPPINGS = {
     "EZLoadImgFromUrlNode": LoadImageFromUrlNode,
     "EZLoadImgBatchFromUrlsNode": LoadImagesFromUrlsNode,
     "EZVideoCombiner": VideoCombine,
+    "EZS3Uploader": S3Upload,
     "EZRemoveImgBackground": RemoveImageBackground
 }
 
@@ -291,6 +329,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "EZAssocImgNode": "Assoc Img",
     "EZLoadImgFromUrlNode": "Load Img From URL (EZ)",
     "EZLoadImgBatchFromUrlsNode": "Load Img Batch From URLs (EZ)",
-    "EZVideoCombiner": "Video Combine + upload (EZ)",
+    "EZVideoCombiner": "DEPRECATED: Video Combine + upload (EZ)",
+    "EZS3Uploader": "S3 Upload (EZ)",
     "EZRemoveImgBackground": "Remove Img Background (EZ)"
 }
