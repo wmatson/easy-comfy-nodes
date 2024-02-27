@@ -74,9 +74,9 @@ class AssocImgNode:
     def execute(self, dict, key, value):
         image = Image.fromarray(np.clip(255. * value[0].cpu().numpy(), 0, 255).astype(np.uint8))
         buffered = io.BytesIO()
-        image.save(buffered, format="PNG")
+        image.save(buffered, format="WebP", lossless=True)
         img_bytestr =  base64.b64encode(buffered.getvalue())
-        return ({**dict, key: (bytes("data:image/png;base64,", encoding='utf-8') + img_bytestr).decode() },)
+        return ({**dict, key: (bytes("data:image/webp;base64,", encoding='utf-8') + img_bytestr).decode() },)
 
 def loadImageFromUrl(url):
     # Lifted mostly from https://github.com/sipherxyz/comfyui-art-venture/blob/main/modules/nodes.py#L43
