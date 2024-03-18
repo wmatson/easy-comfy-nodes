@@ -65,13 +65,16 @@ class AssocDictNode:
 class AssocImgNode:
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {
+        return {
+                "required": {
                     "dict": ("DICT",), 
                     "key": ("STRING", {"default": ""}), 
                     "value": ("IMAGE", {"default": ""}),
+                },
                 "optional": {
                     "format": ("STRING", {"default": "webp"}),
-                    "quality": ("INT", {"default": 92})}}}
+                    "quality": ("INT", {"default": 92})
+                }}
     RETURN_TYPES = ("DICT", )
     RETURN_NAMES=("dict",)
     FUNCTION = "execute"
