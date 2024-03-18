@@ -65,7 +65,7 @@ class AssocDictNode:
 class AssocImgNode:
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"dict": ("DICT",), "key": ("STRING", {"default": ""}), "value": ("IMAGE", {"default": ""}), "format": ("STRING", {"default": "webp"}), "quality": ("FLOAT", {"default": 92})}}
+        return {"required": {"dict": ("DICT",), "key": ("STRING", {"default": ""}), "value": ("IMAGE", {"default": ""}), "format": ("STRING", {"default": "webp"}), "quality": ("INT", {"default": 92})}}
     RETURN_TYPES = ("DICT", )
     RETURN_NAMES=("dict",)
     FUNCTION = "execute"
@@ -74,7 +74,7 @@ class AssocImgNode:
     def execute(self, dict, key, value, format="webp", quality=92):
         image = Image.fromarray(np.clip(255. * value[0].cpu().numpy(), 0, 255).astype(np.uint8))
         buffered = io.BytesIO()
-        image.save(buffered, format=format, quality=int(quality))
+        image.save(buffered, format=format, quality=quality)
         img_bytestr =  base64.b64encode(buffered.getvalue())
         return ({**dict, key: (bytes(f'data:image/{format};base64,', encoding='utf-8') + img_bytestr).decode() },)
 
