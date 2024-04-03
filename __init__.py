@@ -284,8 +284,8 @@ class RemoveImageBackground:
             }
         }
 
-    RETURN_TYPES = ("IMAGE",)
-    RETURN_NAMES = ("image",)
+    RETURN_TYPES = ("IMAGE", "IMAGE")
+    RETURN_NAMES = ("image", "imageWithAlpha")
     OUTPUT_NODE = True
     CATEGORY = "image"
     FUNCTION = "execute"
@@ -300,13 +300,16 @@ class RemoveImageBackground:
         output = rembg.remove(frame)
 
         output = ImageOps.exif_transpose(output)
-        output = output.convert("RGB")
+        outputNoAlpha = output.convert("RGB")
 
         # pillow -> numpy -> tensor
-        image = np.array(output).astype(np.float32) / 255.0
+        image = np.array(outputNoAlpha).astype(np.float32) / 255.0
         image = torch.from_numpy(image)[None,]
 
-        return (image,)
+        imageWithAlpha = np.array(output).astype(np.float32) / 255.0
+        imageWithAlpha = torch.from_numpy(imageWithAlpha)[None,]
+
+        return (image,imageWithAlpha)
 
 NODE_CLASS_MAPPINGS = {
     "EZHttpPostNode": HttpPostNode,
