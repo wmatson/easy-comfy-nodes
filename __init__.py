@@ -10,6 +10,10 @@ import shutil
 import subprocess
 import rembg
 import comfy
+import pillow_avif
+
+from pillow_heif import register_heif_opener
+register_heif_opener()
 
 class HttpPostNode:
     @classmethod

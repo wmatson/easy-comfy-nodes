@@ -1,3 +1,5 @@
 requests
 boto3
 rembg
+pillow-avif-plugin
+pillow-heif
