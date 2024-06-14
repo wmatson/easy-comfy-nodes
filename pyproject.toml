@@ -1,0 +1,15 @@
+[project]
+name = "easy-comfy-nodes"
+description = "Nodes: HTTP POST, Empty Dict, Assoc Str, Assoc Dict, Assoc Img, Load Img From URL (EZ), Load Img Batch From URLs (EZ), Video Combine + upload (EZ), ..."
+version = "1.0.0"
+license = "LICENSE"
+dependencies = ["requests", "boto3", "rembg", "pillow-avif-plugin", "pillow-heif"]
+
+[project.urls]
+Repository = "https://github.com/wmatson/easy-comfy-nodes"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "easy-comfy-nodes"
+Icon = ""
