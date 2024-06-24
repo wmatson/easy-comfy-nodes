@@ -1,8 +1,8 @@
 [project]
 name = "easy-comfy-nodes"
-description = "Nodes: HTTP POST, Empty Dict, Assoc Str, Assoc Dict, Assoc Img, Load Img From URL (EZ), Load Img Batch From URLs (EZ), Video Combine + upload (EZ), ..."
+description = "A collection of utility nodes primarily for interacting with comfy via automated systems"
 version = "1.0.0"
-license = "LICENSE"
+license = "MIT"
 dependencies = ["requests", "boto3", "rembg", "pillow-avif-plugin", "pillow-heif"]
 
 [project.urls]
