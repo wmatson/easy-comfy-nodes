@@ -10,6 +10,6 @@ Repository = "https://github.com/wmatson/easy-comfy-nodes"
 #  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]
-PublisherId = ""
+PublisherId = "wmatson"
 DisplayName = "easy-comfy-nodes"
 Icon = ""
