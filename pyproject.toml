@@ -1,0 +1,15 @@
+[project]
+name = "easy-comfy-nodes"
+description = "A collection of utility nodes primarily for interacting with comfy via automated systems"
+version = "1.0.0"
+license = "MIT"
+dependencies = ["requests", "boto3", "rembg", "pillow-avif-plugin", "pillow-heif"]
+
+[project.urls]
+Repository = "https://github.com/wmatson/easy-comfy-nodes"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "wmatson"
+DisplayName = "easy-comfy-nodes"
+Icon = ""
