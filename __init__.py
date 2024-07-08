@@ -4,10 +4,7 @@ import io
 import numpy as np
 from PIL import Image, ImageOps
 import torch
-import tempfile
 import boto3
-import shutil
-import subprocess
 import rembg
 import comfy
 import pillow_avif
@@ -159,100 +156,6 @@ class LoadImagesFromUrlsNode:
                 image1 = torch.cat((image1, image2), dim=0)
             return (image1,)
 
-ffmpeg_path = shutil.which("ffmpeg")
-
-class VideoCombine:
-    """ 
-    Batches images into WebP format and uploads them S3. 
-
-    Source: https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite/blob/main/videohelpersuite/nodes.py#L165
-    """
-
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "images": ("IMAGE",),
-                "s3_bucket": ("STRING", {"default": ""}),
-                "s3_object_name": ("STRING", {"default": "default/result.webp"}),
-                "frame_rate": (
-                    "INT",
-                    {"default": 14, "min": 1, "step": 1},
-                ),
-                "format": (["image/webp", "video/h264-mp4"],),
-            }
-        }
-
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("s3_url",)
-    OUTPUT_NODE = True
-    CATEGORY = "Video"
-    FUNCTION = "execute"
-
-    def execute(
-        self,
-        images,
-        frame_rate: int,
-        format="image/webp",
-        s3_bucket="",
-        s3_object_name="",
-    ):
-
-        # convert images to numpy
-        images = images.cpu().numpy() * 255.0
-        images = np.clip(images, 0, 255).astype(np.uint8)
-
-        format_type, format_ext = format.split("/")
-
-        tf = tempfile.NamedTemporaryFile()
-        filename = tf.name
-
-        # use pillow for images
-        if format_type == "image":
-            frames = [Image.fromarray(f) for f in images]
-            # Use pillow directly to save an animated image to the tmp file
-            frames[0].save(
-                tf.name,
-                format=format_ext.upper(),
-                save_all=True,
-                append_images=frames[1:],
-                duration=round(1000 / frame_rate),
-                loop=0,
-                compress_level=4,
-            )
-
-        # use ffmpeg for video
-        else:
-            if ffmpeg_path is None:
-                print("no ffmpeg path")
-
-            dimensions = f"{len(images[0][0])}x{len(images[0])}"
-            print("image dimensions: ", dimensions)
-
-            args_mp4 = [
-                ffmpeg_path, 
-                "-v", "error", 
-                "-f", "rawvideo", 
-                "-pix_fmt", "rgb24",
-                "-s", dimensions,
-                "-r", str(frame_rate), 
-                "-i", "-",
-                "-crf", "20",
-                "-c:v", "libx264",
-                "-pix_fmt", "yuv420p"
-            ]
-
-            filename = filename + '.mp4'
-
-            res = subprocess.run(args_mp4 + [filename], input=images.tobytes(), capture_output=True)
-            print(res.stderr)
-
-        s3 = boto3.resource('s3')
-        s3.Bucket(s3_bucket).upload_file(filename, s3_object_name)
-        s3url = f's3://{s3_bucket}/{s3_object_name}'
-        print(f'Uploading webp to {s3url}')
-        return (s3url,)
-
 class S3Upload:
     """
     Uploads first file from VHS_FILENAMES from ComfyUI-VideoHelperSuite to S3.
@@ -332,7 +235,6 @@ NODE_CLASS_MAPPINGS = {
     "EZAssocImgNode": AssocImgNode,
     "EZLoadImgFromUrlNode": LoadImageFromUrlNode,
     "EZLoadImgBatchFromUrlsNode": LoadImagesFromUrlsNode,
-    "EZVideoCombiner": VideoCombine,
     "EZS3Uploader": S3Upload,
     "EZRemoveImgBackground": RemoveImageBackground
 }
@@ -345,7 +247,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "EZAssocImgNode": "Assoc Img",
     "EZLoadImgFromUrlNode": "Load Img From URL (EZ)",
     "EZLoadImgBatchFromUrlsNode": "Load Img Batch From URLs (EZ)",
-    "EZVideoCombiner": "DEPRECATED: Video Combine + upload (EZ)",
     "EZS3Uploader": "S3 Upload (EZ)",
     "EZRemoveImgBackground": "Remove Img Background (EZ)"
 }

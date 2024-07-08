@@ -12,7 +12,7 @@ Prefix all easy-comfy-nodes with `EZ`
 ## Nodes
 
 ### Animation-related Nodes
-- VideoCombine (deprecated): Assembles an animated webp and uses the default provider chain to upload it to s3, returning the s3 url, use S3 Upload and [ComfyUI-VideoHelperSuite](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite) Video Combine instead
+- VideoCombine (removed): use S3 Upload with [ComfyUI-VideoHelperSuite](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite)'s `Video Combine` instead
 - S3 Upload: takes `filenames` as from the "Video Combine" node in [ComfyUI-VideoHelperSuite](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite), uploads them to the relevant s3 bucket and object name using the default credential provider
 
 ### HTTP Nodes
