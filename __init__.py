@@ -282,9 +282,8 @@ class S3Upload:
         s3_bucket="",
         s3_object_name="",
     ):
-
         s3 = boto3.resource('s3')
-        s3.Bucket(s3_bucket).upload_file(filenames[1][0], s3_object_name)
+        s3.Bucket(s3_bucket).upload_file(filenames[1][1], s3_object_name)
         s3url = f's3://{s3_bucket}/{s3_object_name}'
         print(f'Uploading file to {s3url}')
         return (s3url,)
