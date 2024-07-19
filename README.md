@@ -19,7 +19,7 @@ Prefix all easy-comfy-nodes with `EZ`
 Nodes for handling http requests as part of a workflow, these can be used to create webhooks and the like for different parts of a workflow
 
 - HTTP POST: emits a POST request to `url` with dict `body` as JSON
-- Load Img From URL: loads an image from a url, this works for data urls and s3 urls (using the default credential provider)
+- Load Img From URL: loads an image from a url, this also works for data urls and s3 uris (using the default credential provider)
 - Load Img Batch From URLs: loads a batch of images from a set of URLs on separate lines, loaded just as the single-url node
 
 ### Dict Nodes
