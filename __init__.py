@@ -93,6 +93,11 @@ def loadImageFromUrl(url):
     # Lifted mostly from https://github.com/sipherxyz/comfyui-art-venture/blob/main/modules/nodes.py#L43
     if url.startswith("data:image/"):
         i = Image.open(io.BytesIO(base64.b64decode(url.split(",")[1])))
+    elif url.startswith("s3://"):
+        s3 = boto3.client('s3')
+        bucket, key = url.split("s3://")[1].split("/", 1)
+        obj = s3.get_object(Bucket=bucket, Key=key)
+        i = Image.open(io.BytesIO(obj['Body'].read()))
     else:
         response = requests.get(url, timeout=5)
         if response.status_code != 200:
