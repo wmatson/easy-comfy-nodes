@@ -2,7 +2,7 @@
 name = "easy-comfy-nodes"
 description = "A collection of utility nodes primarily for interacting with comfy via automated systems"
 version = "2.0.0"
-license = "MIT"
+license = { text = "MIT License" }
 dependencies = ["requests", "boto3", "rembg", "pillow-avif-plugin", "pillow-heif"]
 
 [project.urls]
